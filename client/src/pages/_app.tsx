@@ -13,15 +13,7 @@ const client = createClient({
   },
 });
 
-const App = ({
-  Component,
-  pageProps,
-  initialColorMode,
-}: {
-  Component: any;
-  pageProps: any;
-  initialColorMode: any;
-}) => {
+const App = ({ Component, pageProps, initialColorMode }: any) => {
   return (
     <Provider value={client}>
       <ThemeProvider theme={theme}>
@@ -35,7 +27,7 @@ const App = ({
   );
 };
 
-App.getInitialProps = async ({ Component, ctx }) => {
+App.getInitialProps = async ({ Component, ctx }: any) => {
   let pageProps = {};
   if (Component.getInitialProps) {
     pageProps = await Component.getInitialProps(ctx);

@@ -1,5 +1,5 @@
 {
-  "name": "reddit-clone",
+  "name": "reddit-server",
   "version": "1.0.0",
   "description": "Reddit clone created with typescript, graphql, postgres, and react",
   "main": "src/index.ts",
