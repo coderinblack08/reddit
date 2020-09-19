@@ -11,6 +11,8 @@ import {
 } from 'type-graphql';
 import argon from 'argon2';
 import { User } from '../entities/User';
+import { EntityManager } from '@mikro-orm/postgresql';
+import { cookie_name } from '../constants';
 
 @InputType()
 class UsernamePasswordInput {
@@ -65,8 +67,18 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg('options', () => UsernamePasswordInput) options: UsernamePasswordInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
+    if (options.name.length < 2) {
+      return {
+        errors: [
+          {
+            field: 'name',
+            message: 'Name length must be 2 or more characters',
+          },
+        ],
+      };
+    }
     if (options.email.length < 2) {
       return {
         errors: [
@@ -81,20 +93,27 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: 'email',
-            message: 'Email length must be 3 or more characters',
+            field: 'password',
+            message: 'Password length must be 3 or more characters',
           },
         ],
       };
     }
     const hashedPassword = await argon.hash(options.password);
-    const user = em.create(User, {
-      name: options.name,
-      email: options.email,
-      password: hashedPassword,
-    });
+    let user;
     try {
-      await em.persistAndFlush(user);
+      const result = await (em as EntityManager)
+        .createQueryBuilder(User)
+        .getKnexQuery()
+        .insert({
+          name: options.name,
+          email: options.email,
+          password: hashedPassword,
+          updated_at: new Date(),
+          created_at: new Date(),
+        })
+        .returning('*');
+      user = result[0];
     } catch (error) {
       console.error(`ERROR: ${error}`);
       if (error.code === '23505') {
@@ -108,6 +127,7 @@ export class UserResolver {
         };
       }
     }
+    req.session.userId = user.id;
     return { user };
   }
 
@@ -130,5 +150,20 @@ export class UserResolver {
     }
     req.session.userId = user.id;
     return { user };
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((reslove) =>
+      req.session.destroy((err) => {
+        if (err) {
+          console.error(err);
+          reslove(false);
+          return;
+        }
+        res.clearCookie(cookie_name);
+        reslove(true);
+      })
+    );
   }
 }

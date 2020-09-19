@@ -5,11 +5,7 @@ mutation Register($name: String!, $email: String!, $password: String!) {
       message
     }
     user {
-      id
-      name
-      email
-      updatedAt
-      createdAt
+      ...UserFragment
     }
   }
 }

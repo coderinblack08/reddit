@@ -7,7 +7,7 @@ import { HelloResolver } from './resolvers/HelloResolver';
 import { PostResolver } from './resolvers/PostResolver';
 import { UserResolver } from './resolvers/UserResolver';
 import session from 'express-session';
-import { port, __prod__ } from './constants';
+import { cookie_name, port, __prod__ } from './constants';
 import connectRedis from 'connect-redis';
 import redis from 'redis';
 import express from 'express';
@@ -31,7 +31,7 @@ const main = async () => {
 
   app.use(
     session({
-      name: 'qid',
+      name: cookie_name,
       store: new RedisStore({
         client: redisClient,
         disableTouch: true,

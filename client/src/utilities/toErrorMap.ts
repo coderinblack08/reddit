@@ -1,8 +1,9 @@
 import { FieldError } from '../generated/graphql';
 
 export const toErrorMap = (errors: FieldError[]) => {
-  return errors.reduce(
-    (acc: any, { field, message }) => (acc[field] = message),
-    {}
-  );
+  const errorMap: Record<string, string> = {};
+  errors.forEach(({ field, message }) => {
+    errorMap[field] = message;
+  });
+  return errorMap;
 };

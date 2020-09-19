@@ -1,29 +1,16 @@
-import * as React from 'react';
-import { ThemeProvider, CSSReset, ColorModeProvider } from '@chakra-ui/core';
-import { Provider, createClient } from 'urql';
+import { ColorModeProvider, CSSReset, ThemeProvider } from '@chakra-ui/core';
 import cookies from 'next-cookies';
-
+import * as React from 'react';
 import theme from '../theme';
-import { DarkModeSwitch } from '../components/DarkModeSwitch';
-
-const client = createClient({
-  url: 'http://localhost:4000/graphql',
-  fetchOptions: {
-    credentials: 'include',
-  },
-});
 
 const App = ({ Component, pageProps, initialColorMode }: any) => {
   return (
-    <Provider value={client}>
-      <ThemeProvider theme={theme}>
-        <ColorModeProvider value={initialColorMode}>
-          <CSSReset />
-          <DarkModeSwitch />
-          <Component {...pageProps} />
-        </ColorModeProvider>
-      </ThemeProvider>
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <ColorModeProvider value={initialColorMode}>
+        <CSSReset />
+        <Component {...pageProps} />
+      </ColorModeProvider>
+    </ThemeProvider>
   );
 };
 

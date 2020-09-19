@@ -12,53 +12,46 @@ import {
 } from '@chakra-ui/core';
 import Wrapper from '../components/Wrapper';
 import InputField from '../components/InputField';
-import { useRegisterMutation } from '../generated/graphql';
 import { toErrorMap } from '../utilities/toErrorMap';
+import { useLoginMutation } from '../generated/graphql';
 import Navbar from '../components/Navbar';
 import Link from 'next/link';
 import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utilities/createUrqlClient';
 
-const Register: React.FC = () => {
+const Login: React.FC = () => {
   const router = useRouter();
-  const [, register] = useRegisterMutation();
+  const [, login] = useLoginMutation();
   return (
     <Box>
       <Navbar />
       <Wrapper variant="small">
         <Formik
-          initialValues={{ name: '', email: '', password: '' }}
+          initialValues={{ email: '', password: '' }}
           onSubmit={async (values, { setErrors }) => {
-            const response = await register(values);
-            if (response.data?.register.errors) {
-              setErrors(toErrorMap(response.data.register.errors));
+            const response = await login({ options: values });
+            if (response.data?.login.errors) {
+              setErrors(toErrorMap(response.data.login.errors));
             } else {
-              router.push('/login');
+              router.push('/');
             }
           }}
         >
           {({ values, handleChange, isSubmitting }) => (
             <Form>
-              <Stack height="70vh" justify="center">
+              <Stack height="65vh" justify="center">
                 <Heading as="h4" fontWeight="extrabold">
-                  Register Account
+                  Account Login
                 </Heading>
                 <Text color="gray.500">
                   Or{' '}
-                  <Link href="/login">
+                  <Link href="/register">
                     <ALink color="blue.400" as="span">
-                      log in
+                      register
                     </ALink>
                   </Link>{' '}
-                  with an existing account
+                  a new account
                 </Text>
-                <Box mt={4}>
-                  <InputField
-                    name="name"
-                    placeholder="Name"
-                    label="Full Name"
-                  />
-                </Box>
                 <Box mt={4}>
                   <InputField
                     name="email"
@@ -75,7 +68,7 @@ const Register: React.FC = () => {
                   />
                 </Box>
                 <Box mt={5}>
-                  <Checkbox>Agree to terms of service</Checkbox>
+                  <Checkbox>Stay logged in</Checkbox>
                 </Box>
                 <Box mt={4}>
                   <Button
@@ -83,7 +76,7 @@ const Register: React.FC = () => {
                     isLoading={isSubmitting}
                     type="submit"
                   >
-                    Register
+                    Login
                   </Button>
                 </Box>
               </Stack>
@@ -95,4 +88,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Register);
+export default withUrqlClient(createUrqlClient)(Login);
